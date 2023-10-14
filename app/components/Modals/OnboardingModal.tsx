@@ -1,12 +1,12 @@
 "use client";
 import { auth, db } from "@/app/config/firebase";
+import { useAuthContext } from "@/app/context/AuthContext";
 import { useAuthModalContext } from "@/app/context/AuthModalContext";
 import {
   doc,
   getDoc,
   runTransaction,
-  serverTimestamp,
-  setDoc,
+  serverTimestamp
 } from "firebase/firestore";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -16,7 +16,6 @@ import { RiUpload2Line, RiUser4Line } from "react-icons/ri";
 import Input from "../Input";
 import Loader from "../Loader";
 import Modal from "../Modal";
-import { useAuthContext } from "@/app/context/AuthContext";
 
 const OnboardingModal = () => {
   const { setCurrentUser } = useAuthContext();
@@ -107,7 +106,7 @@ const OnboardingModal = () => {
         Please fill the following fields
       </p>
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col items-center gap-4">
+        {/* <div className="flex flex-col items-center gap-4">
           {!user?.photoURL ? (
             <div className="h-[50px] w-[50px] flex items-center justify-center bg-neutral-700 outline outline-offset-2 outline-green-600 rounded-full">
               <RiUser4Line size={25} className="text-neutral-300" />
@@ -130,7 +129,7 @@ const OnboardingModal = () => {
             <span>Choose profile picture</span>
           </label>
           <input type="file" id="profile-picture" className="hidden" />
-        </div>
+        </div> */}
         <Input
           placeholder="Your Name"
           type="text"

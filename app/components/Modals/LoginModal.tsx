@@ -90,7 +90,7 @@ const LoginModal = () => {
 
   const footerContent = (
     <div className="flex items-center justify-center gap-2 text-sm font-semibold">
-      <p>Don't have an account?</p>
+      <p>Don&apos;t have an account?</p>
       <span
         className="text-green-600 hover:text-green-500 cursor-pointer transition"
         onClick={onToggle}

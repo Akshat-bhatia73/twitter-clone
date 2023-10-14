@@ -56,4 +56,6 @@ const OAuthButton = forwardRef<HTMLButtonElement, OAuthButtonProps>(
   }
 );
 
+OAuthButton.displayName = 'OAuthButton'
+
 export default OAuthButton;

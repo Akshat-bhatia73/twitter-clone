@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { db } from "../config/firebase"
 import { PostData } from "./use-get-posts"
 
-const usegetUserPosts = (userid: string) => {
+const useGetUserPosts = (userid: string) => {
     const [userPosts, setUserPosts] = useState<PostData[] | null>(null)
     const [postsloading, setPostsLoading] = useState(false)
 
@@ -40,4 +40,4 @@ const usegetUserPosts = (userid: string) => {
     return { userPosts, postsloading }
 }
 
-export default usegetUserPosts
+export default useGetUserPosts

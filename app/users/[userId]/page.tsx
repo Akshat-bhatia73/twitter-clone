@@ -5,7 +5,7 @@ import Posts from "@/app/components/Posts";
 import { db } from "@/app/config/firebase";
 import { useAuthContext } from "@/app/context/AuthContext";
 import { useAuthModalContext } from "@/app/context/AuthModalContext";
-import usegetUserPosts from "@/app/hooks/use-get-user-posts";
+import useGetUserPosts from "@/app/hooks/use-get-user-posts";
 import useGetUserProfile from "@/app/hooks/use-get-user-profile";
 import { doc, runTransaction } from "firebase/firestore";
 import Image from "next/image";
@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { RiUser4Line } from "react-icons/ri";
 
 export default function User({ params }: { params: { userId: string } }) {
-  const { userPosts, postsloading } = usegetUserPosts(params.userId);
+  const { userPosts, postsloading } = useGetUserPosts(params.userId);
   const { user, loading, error } = useGetUserProfile(params.userId);
   const [following, setFollowing] = useState<boolean>(false);
   const [actionLoading, setActionLoading] = useState<boolean>(false);
