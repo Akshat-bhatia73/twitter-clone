@@ -2,16 +2,70 @@
 import Button from "@/app/components/Button";
 import Loader from "@/app/components/Loader";
 import Posts from "@/app/components/Posts";
+import { db } from "@/app/config/firebase";
 import { useAuthContext } from "@/app/context/AuthContext";
+import { useAuthModalContext } from "@/app/context/AuthModalContext";
 import usegetUserPosts from "@/app/hooks/use-get-user-posts";
 import useGetUserProfile from "@/app/hooks/use-get-user-profile";
+import { doc, runTransaction } from "firebase/firestore";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { RiUser4Line } from "react-icons/ri";
 
 export default function User({ params }: { params: { userId: string } }) {
   const { userPosts, postsloading } = usegetUserPosts(params.userId);
   const { user, loading, error } = useGetUserProfile(params.userId);
+  const [following, setFollowing] = useState<boolean>(false);
+  const [actionLoading, setActionLoading] = useState<boolean>(false);
   const { currentUser } = useAuthContext();
+  const { onLoginOpen } = useAuthModalContext();
+
+  useEffect(() => {
+    currentUser &&
+      (currentUser.following.includes(params.userId)
+        ? setFollowing(true)
+        : setFollowing(false));
+  }, [currentUser]);
+
+  const onFollow = async () => {
+    if (!currentUser) {
+      onLoginOpen();
+      return;
+    } else if (actionLoading) {
+      return;
+    } else {
+      setActionLoading(true);
+      user &&
+        (await runTransaction(db, async (transaction) => {
+          if (following) {
+            transaction.update(doc(db, "users", params.userId), {
+              followerCount: user.followerCount - 1,
+              followers: user.followers.filter((id) => {
+                return id != currentUser.uid;
+              }),
+            });
+            transaction.update(doc(db, "users", currentUser.uid), {
+              followingCount: currentUser.followingCount - 1,
+              following: currentUser.following.filter((id) => {
+                return id !== user.uid;
+              }),
+            });
+            setFollowing(false);
+          } else {
+            transaction.update(doc(db, "users", params.userId), {
+              followerCount: user.followerCount + 1,
+              followers: [...user.followers, currentUser.uid],
+            });
+            transaction.update(doc(db, "users", currentUser.uid), {
+              followingCount: currentUser.followingCount + 1,
+              following: [...currentUser.following, user.uid],
+            });
+            setFollowing(true);
+          }
+        }));
+      setActionLoading(false);
+    }
+  };
 
   return (
     <div className="mt-4">
@@ -56,8 +110,12 @@ export default function User({ params }: { params: { userId: string } }) {
                   Edit
                 </Button>
               ) : (
-                <Button className="mt-2 bg-green-600 text-neutral-800 hover:bg-green-500">
-                  Follow
+                <Button
+                  onClick={onFollow}
+                  disabled={actionLoading}
+                  className="mt-2 bg-green-600 text-neutral-800 hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {following ? "Following" : "Follow"}
                 </Button>
               )}
             </div>

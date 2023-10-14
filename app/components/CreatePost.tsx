@@ -14,33 +14,36 @@ const CreatePost = () => {
   const [post, setPost] = useState("");
 
   const createPost = async () => {
-    setLoading(true);
-    if (!post) {
+    if (!currentUser) {
+      toast.error("Please Sign in to post");
+    } else if (!post) {
       toast.error("Empty post.");
       setLoading(false);
       return;
-    }
-    const docRef = doc(db, "users", currentUser.uid);
-    await runTransaction(db, async (transaction) => {
-      const userDoc = await transaction.get(docRef);
-      if (!userDoc.exists()) {
-        setLoading(false);
-        return;
-      }
-      const userPosts = [...userDoc.data().posts, post];
-      transaction.update(docRef, { posts: userPosts });
-      transaction.set(doc(db, "posts", uuidv4()), {
-        userId: currentUser.uid,
-        body: post,
-        likes: 0,
-        comments: 0,
-        commentsIds: [],
-        createdAt: new Date(),
+    } else {
+      setLoading(true);
+      const docRef = doc(db, "users", currentUser.uid);
+      await runTransaction(db, async (transaction) => {
+        const userDoc = await transaction.get(docRef);
+        if (!userDoc.exists()) {
+          setLoading(false);
+          return;
+        }
+        const userPosts = [...userDoc.data().posts, post];
+        transaction.update(docRef, { posts: userPosts });
+        transaction.set(doc(db, "posts", uuidv4()), {
+          userId: currentUser.uid,
+          body: post,
+          likes: 0,
+          comments: 0,
+          commentsIds: [],
+          createdAt: new Date(),
+        });
       });
-    });
-    toast.success("Post created.");
-    setPost("");
-    setLoading(false);
+      toast.success("Post created.");
+      setPost("");
+      setLoading(false);
+    }
   };
 
   return (

@@ -190,7 +190,6 @@ const PostMain: React.FC<Postprops> = ({
             </div>
           </div>
         </div>
-        <div className="">Comments & Comment Box</div>
       </div>
     )
   );

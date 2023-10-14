@@ -26,11 +26,6 @@ export const AuthContextProvider = ({
 }) => {
   const { currentUser, setCurrentUser, currUserLikes, setCurrUserLikes } = useGetCurrentUserFromFirestore();
   const [isLoading, setIsLoading] = useState(false);
-  useEffect(() => {
-    if (currentUser) {
-      toast.success(`Welcome ${currentUser.displayName}`);
-    }
-  }, [currentUser]);
 
   return (
     <AuthContext.Provider

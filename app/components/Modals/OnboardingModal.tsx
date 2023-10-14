@@ -1,7 +1,13 @@
 "use client";
 import { auth, db } from "@/app/config/firebase";
 import { useAuthModalContext } from "@/app/context/AuthModalContext";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -36,47 +42,58 @@ const OnboardingModal = () => {
       return;
     }
     if (user) {
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        displayName: name,
-        email: user.email,
-        username: username,
-        profilePicURl: user.photoURL || "",
-        posts: [],
-        likes: [],
-        comments: [],
-        followerCount: 0,
-        followingCount: 0,
-        followers: [],
-        following: [],
-        onboarded: true,
-        createdAt: serverTimestamp(),
-      }).then(async () => {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setCurrentUser({
-            uid: userData.uid,
-            displayName: userData.displayName,
-            email: userData.email,
-            username: userData.username,
-            photoUrl: userData.profilePicURl,
-            posts: userData.posts,
-            likes: userData.likes,
-            comments: userData.comments,
-            followerCount: userData.followerCount,
-            followingCount: userData.followingCount,
-            followers: userData.followers,
-            following: userData.following,
-            onboarded: userData.onboarded,
-            createdAt: userData.createdAt,
+      const userUnique = await getDoc(doc(db, "username", username));
+      if (userUnique.exists()) {
+        setErr("Username already in use. Please choose another.");
+      } else {
+        await runTransaction(db, async (transaction) => {
+          transaction.set(doc(db, "username", username), {
+            username: username,
+            userId: user.uid,
           });
-          toast.success("Profile created successfully");
-          onOnboardingClose();
-        }
-      });
+          transaction.set(doc(db, "users", user.uid), {
+            uid: user.uid,
+            displayName: name,
+            email: user.email,
+            username: username,
+            profilePicURl: user.photoURL || "",
+            posts: [],
+            likes: [],
+            comments: [],
+            followerCount: 0,
+            followingCount: 0,
+            followers: [],
+            following: [],
+            onboarded: true,
+            createdAt: serverTimestamp(),
+          });
+        }).then(async () => {
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            setCurrentUser({
+              uid: userData.uid,
+              displayName: userData.displayName,
+              email: userData.email,
+              username: userData.username,
+              photoUrl: userData.profilePicURl,
+              posts: userData.posts,
+              likes: userData.likes,
+              comments: userData.comments,
+              followerCount: userData.followerCount,
+              followingCount: userData.followingCount,
+              followers: userData.followers,
+              following: userData.following,
+              onboarded: userData.onboarded,
+              createdAt: userData.createdAt,
+            });
+          }
+        });
+        toast.success("Profile created successfully");
+        onOnboardingClose();
+      }
     }
     setLoading(false);
   };

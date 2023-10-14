@@ -1,20 +1,18 @@
-import { DocumentData, doc, getDoc } from "firebase/firestore";
+import { DocumentData, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../config/firebase";
 import { CurrentUserModel } from "./use-get-current-user";
 
 const useGetUserProfile = (userId: string) => {
   const [user, setUser] = useState<CurrentUserModel | null>(null);
-    const [loading, setLoading] = useState<boolean>(false)
-    const [error, setError] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<boolean>(false)
   const getUser = async () => {
     setError(false)
     setLoading(true)
-
     const userRef = doc(db, "users", userId)
-    const userSnap = await getDoc(userRef)
-
-    if (userSnap.exists()) {
+    onSnapshot(userRef, (userSnap) => {
+      if (userSnap.exists()) {
         const userData = userSnap.data()
         setUser({
           uid: userData.uid,
@@ -32,10 +30,11 @@ const useGetUserProfile = (userId: string) => {
           onboarded: userData.onboarded,
           createdAt: userData.createdAt,
         });
-    }
-    else {
+      }
+      else {
         setError(true)
-    }
+      }
+    })
 
     setLoading(false)
   };
@@ -44,7 +43,7 @@ const useGetUserProfile = (userId: string) => {
     getUser()
   }, [])
 
-  return {user, loading, error}
+  return { user, loading, error }
 };
 
 export default useGetUserProfile

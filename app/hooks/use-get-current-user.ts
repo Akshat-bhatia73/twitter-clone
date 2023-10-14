@@ -1,4 +1,4 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../config/firebase";
@@ -28,28 +28,29 @@ const
 
     const getUser = async (uid: string) => {
       const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
+      onSnapshot(userRef, (userSnap) => {
 
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        setCurrentUser({
-          uid: userData.uid,
-          displayName: userData.displayName,
-          email: userData.email,
-          username: userData.username,
-          photoUrl: userData.profilePicURl,
-          posts: userData.posts,
-          likes: userData.likes,
-          comments: userData.comments,
-          followerCount: userData.followerCount,
-          followingCount: userData.followingCount,
-          followers: userData.followers,
-          following: userData.following,
-          onboarded: userData.onboarded,
-          createdAt: userData.createdAt,
-        });
-        setCurrUserLikes(userData.likes)
-      }
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setCurrentUser({
+            uid: userData.uid,
+            displayName: userData.displayName,
+            email: userData.email,
+            username: userData.username,
+            photoUrl: userData.profilePicURl,
+            posts: userData.posts,
+            likes: userData.likes,
+            comments: userData.comments,
+            followerCount: userData.followerCount,
+            followingCount: userData.followingCount,
+            followers: userData.followers,
+            following: userData.following,
+            onboarded: userData.onboarded,
+            createdAt: userData.createdAt,
+          });
+          setCurrUserLikes(userData.likes)
+        }
+      })
     };
     useEffect(() => {
       if (user) {

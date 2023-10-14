@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuthModalContext } from "@/app/context/AuthModalContext";
 import Button from "./Button";
 import { useAuthContext } from "@/app/context/AuthContext";
+import { RiMenu2Line } from "react-icons/ri";
 
 const Navbar = ({ label }: { label: string }) => {
   const { onLoginOpen, onRegisterOpen } = useAuthModalContext();
