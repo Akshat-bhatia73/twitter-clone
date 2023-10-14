@@ -13,7 +13,7 @@ import Providers from "./providers";
 const font = Figtree({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Twitter",
+  title: "Twitter Clone",
   description: "A Twitter clone made useing NextJs and Firebase.",
 };
 
